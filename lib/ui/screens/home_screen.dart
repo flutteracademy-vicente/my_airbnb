@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_airbnb/structure/bloc/home_settings_bloc.dart';
 import 'package:my_airbnb/ui/models/homelist.dart';
 import 'package:my_airbnb/ui/theme/app_theme.dart';
 import 'package:my_airbnb/ui/widgets/appbar.widget.dart';
@@ -31,58 +33,66 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.white,
-      body: Padding(
-        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            const AppbarWidget(),
-            Expanded(
-              child: GridView(
-                padding: const EdgeInsets.only(top: 0, left: 12, right: 12),
-                physics: const BouncingScrollPhysics(),
-                scrollDirection: Axis.vertical,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 1, // multiple ? 2 : 1,
-                  mainAxisSpacing: 12.0,
-                  crossAxisSpacing: 12.0,
-                  childAspectRatio: 1.5,
-                ),
-                children: List<Widget>.generate(
-                  homeList.length,
-                  (int index) {
-                    final int count = homeList.length;
-                    final Animation<double> animation =
-                        Tween<double>(begin: 0.0, end: 1.0).animate(
-                      CurvedAnimation(
-                        parent: animationController,
-                        curve: Interval((1 / count) * index, 1.0,
-                            curve: Curves.fastOutSlowIn),
+    return BlocProvider(
+      create: (context) => HomeSettingsBloc(),
+      child: Scaffold(
+        backgroundColor: AppTheme.white,
+        body: Padding(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const AppbarWidget(),
+              Expanded(
+                child: BlocBuilder<HomeSettingsBloc, HomeSettingsState>(
+                  builder: (context, state) {
+                    return GridView(
+                      padding:
+                          const EdgeInsets.only(top: 0, left: 12, right: 12),
+                      physics: const BouncingScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: state.multiple ? 2 : 1,
+                        mainAxisSpacing: 12.0,
+                        crossAxisSpacing: 12.0,
+                        childAspectRatio: 1.5,
                       ),
-                    );
-                    animationController.forward();
-                    return HomeListView(
-                      animation: animation,
-                      animationController: animationController,
-                      listData: homeList[index],
-                      callBack: () {
-                        Navigator.push<dynamic>(
-                          context,
-                          MaterialPageRoute<dynamic>(
-                            builder: (BuildContext context) =>
-                                homeList[index].navigateScreen,
-                          ),
-                        );
-                      },
+                      children: List<Widget>.generate(
+                        homeList.length,
+                        (int index) {
+                          final int count = homeList.length;
+                          final Animation<double> animation =
+                              Tween<double>(begin: 0.0, end: 1.0).animate(
+                            CurvedAnimation(
+                              parent: animationController,
+                              curve: Interval((1 / count) * index, 1.0,
+                                  curve: Curves.fastOutSlowIn),
+                            ),
+                          );
+                          animationController.forward();
+                          return HomeListView(
+                            animation: animation,
+                            animationController: animationController,
+                            listData: homeList[index],
+                            callBack: () {
+                              Navigator.push<dynamic>(
+                                context,
+                                MaterialPageRoute<dynamic>(
+                                  builder: (BuildContext context) =>
+                                      homeList[index].navigateScreen,
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
                     );
                   },
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
