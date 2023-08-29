@@ -88,8 +88,9 @@ class _HotelHomeScreenState extends State<HotelHomeScreen>
                           ];
                         },
                         body: Container(
-                          color:
-                              HotelAppTheme.buildLightTheme().colorScheme.background,
+                          color: HotelAppTheme.buildLightTheme()
+                              .colorScheme
+                              .background,
                           child: ListView.builder(
                             itemCount: hotelList.length,
                             padding: const EdgeInsets.only(top: 8),
@@ -387,7 +388,9 @@ class _HotelHomeScreenState extends State<HotelHomeScreen>
                   padding: const EdgeInsets.all(16.0),
                   child: Icon(FontAwesomeIcons.search,
                       size: 20,
-                      color: HotelAppTheme.buildLightTheme().colorScheme.background),
+                      color: HotelAppTheme.buildLightTheme()
+                          .colorScheme
+                          .background),
                 ),
               ),
             ),
@@ -451,7 +454,8 @@ class _HotelHomeScreenState extends State<HotelHomeScreen>
                       Navigator.push<dynamic>(
                         context,
                         MaterialPageRoute<dynamic>(
-                            builder: (BuildContext context) => const FiltersScreen(),
+                            builder: (BuildContext context) =>
+                                const FiltersScreen(),
                             fullscreenDialog: true),
                       );
                     },

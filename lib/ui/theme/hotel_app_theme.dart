@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_airbnb/main.dart';
+import 'package:my_airbnb/ui/utils/colors.utils.dart';
 
 class HotelAppTheme {
   static TextTheme _buildTextTheme(TextTheme base) {
@@ -45,7 +45,10 @@ class HotelAppTheme {
       textTheme: _buildTextTheme(base.textTheme),
       primaryTextTheme: _buildTextTheme(base.primaryTextTheme),
       // accentTextTheme: _buildTextTheme(base.accentTextTheme),
-      platform: TargetPlatform.iOS, colorScheme: colorScheme.copyWith(background: const Color(0xFFFFFFFF)).copyWith(error: const Color(0xFFB00020)),
+      platform: TargetPlatform.iOS,
+      colorScheme: colorScheme
+          .copyWith(background: const Color(0xFFFFFFFF))
+          .copyWith(error: const Color(0xFFB00020)),
     );
   }
 }
