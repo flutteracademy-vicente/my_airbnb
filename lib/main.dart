@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:my_airbnb/core/router/app_router.dart';
 import 'package:my_airbnb/ui/screens/home_screen.dart';
 import 'package:my_airbnb/ui/theme/app_theme.dart';
 
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
       systemNavigationBarDividerColor: Colors.grey,
       systemNavigationBarIconBrightness: Brightness.dark,
     ));
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Flutter UI',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -36,7 +37,10 @@ class MyApp extends StatelessWidget {
         platform: TargetPlatform.iOS,
       ),
       //TODO: Implementar algún tipo de manejo de rutas => Vease Go_Router: https://pub.dev/packages/go_router
-      home: const MyHomePage(),
+      // home: const MyHomePage(),
+
+      //Router
+      routerConfig: goRouter,
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:my_airbnb/core/router/app_router.dart';
 import 'package:my_airbnb/structure/bloc/home_settings_bloc.dart';
 import 'package:my_airbnb/ui/models/homelist.dart';
 import 'package:my_airbnb/ui/theme/app_theme.dart';
@@ -76,13 +78,18 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                             animationController: animationController,
                             listData: homeList[index],
                             callBack: () {
-                              Navigator.push<dynamic>(
-                                context,
-                                MaterialPageRoute<dynamic>(
-                                  builder: (BuildContext context) =>
-                                      homeList[index].navigateScreen,
-                                ),
-                              );
+                              // Navigator.push<dynamic>(
+                              //   context,
+                              //   MaterialPageRoute<dynamic>(
+                              //     builder: (BuildContext context) =>
+                              //         homeList[index].navigateScreen,
+                              //   ),
+                              // );
+
+                              context.goNamed(AppRoutes.app1.name);
+                              // context.goNamed(AppRoutes.app2.name);
+                              // context.goNamed(AppRoutes.app3.name);
+                              // context.goNamed(AppRoutes.app4.name);
                             },
                           );
                         },
