@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:my_airbnb/data/models/hotel_list_data.dart';
+import 'package:my_airbnb/structure/hotels/hotels_bloc.dart';
 import 'package:my_airbnb/ui/screens/calendar_popup_view.dart';
 import 'package:my_airbnb/ui/screens/filters_screen.dart';
 import 'package:my_airbnb/ui/screens/hotel_list_view.dart';
@@ -13,7 +15,7 @@ class HotelHomeScreen extends StatefulWidget {
   const HotelHomeScreen({super.key});
 
   @override
-  _HotelHomeScreenState createState() => _HotelHomeScreenState();
+  State<HotelHomeScreen> createState() => _HotelHomeScreenState();
 }
 
 class _HotelHomeScreenState extends State<HotelHomeScreen>
@@ -22,19 +24,11 @@ class _HotelHomeScreenState extends State<HotelHomeScreen>
   List<HotelListData> hotelList = HotelListData.hotelList;
   final ScrollController _scrollController = ScrollController();
 
-  DateTime startDate = DateTime.now();
-  DateTime endDate = DateTime.now().add(const Duration(days: 5));
-
   @override
   void initState() {
     animationController = AnimationController(
         duration: const Duration(milliseconds: 1000), vsync: this);
     super.initState();
-  }
-
-  Future<bool> getData() async {
-    await Future<dynamic>.delayed(const Duration(milliseconds: 200));
-    return true;
   }
 
   @override
@@ -47,80 +41,93 @@ class _HotelHomeScreenState extends State<HotelHomeScreen>
   Widget build(BuildContext context) {
     return Theme(
       data: HotelAppTheme.buildLightTheme(),
-      child: Scaffold(
-        body: Stack(
-          children: <Widget>[
-            InkWell(
-              splashColor: Colors.transparent,
-              focusColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              hoverColor: Colors.transparent,
-              onTap: () {
-                FocusScope.of(context).requestFocus(FocusNode());
-              },
-              child: Column(
+      child: BlocProvider<HotelsBloc>(
+        create: (context) => HotelsBloc(),
+        child: BlocBuilder<HotelsBloc, HotelsState>(
+          builder: (context, state) {
+            return Scaffold(
+              // appBar: ,
+              body: Stack(
                 children: <Widget>[
-                  getAppBarUI(),
-                  Expanded(
-                    child: NestedScrollView(
-                      controller: _scrollController,
-                      headerSliverBuilder:
-                          (BuildContext context, bool innerBoxIsScrolled) {
-                        return <Widget>[
-                          SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                                (BuildContext context, int index) {
-                              return Column(
-                                children: <Widget>[
-                                  getSearchBarUI(),
-                                  getTimeDateUI(),
-                                ],
-                              );
-                            }, childCount: 1),
-                          ),
-                          SliverPersistentHeader(
-                            pinned: true,
-                            floating: true,
-                            delegate: ContestTabHeader(
-                              getFilterBarUI(),
+                  InkWell(
+                    splashColor: Colors.transparent,
+                    focusColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
+                    onTap: () {
+                      FocusScope.of(context).requestFocus(FocusNode());
+                    },
+                    child: Column(
+                      children: <Widget>[
+                        getAppBarUI(),
+                        Expanded(
+                          child: NestedScrollView(
+                            controller: _scrollController,
+                            headerSliverBuilder: (BuildContext context,
+                                bool innerBoxIsScrolled) {
+                              return <Widget>[
+                                SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                      (BuildContext context, int index) {
+                                    return Column(
+                                      children: <Widget>[
+                                        getSearchBarUI(),
+                                        getTimeDateUI(
+                                          endDate: state.endDate,
+                                          startDate: state.startDate,
+                                        ),
+                                      ],
+                                    );
+                                  }, childCount: 1),
+                                ),
+                                SliverPersistentHeader(
+                                  pinned: true,
+                                  floating: true,
+                                  delegate: ContestTabHeader(
+                                    getFilterBarUI(),
+                                  ),
+                                ),
+                              ];
+                            },
+                            body: Container(
+                              color: HotelAppTheme.buildLightTheme()
+                                  .colorScheme
+                                  .background,
+                              child: ListView.builder(
+                                itemCount: hotelList.length,
+                                padding: const EdgeInsets.only(top: 8),
+                                scrollDirection: Axis.vertical,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final int count = hotelList.length > 10
+                                      ? 10
+                                      : hotelList.length;
+                                  final Animation<double> animation =
+                                      Tween<double>(begin: 0.0, end: 1.0)
+                                          .animate(CurvedAnimation(
+                                              parent: animationController,
+                                              curve: Interval(
+                                                  (1 / count) * index, 1.0,
+                                                  curve:
+                                                      Curves.fastOutSlowIn)));
+                                  animationController.forward();
+                                  return HotelListView(
+                                    callback: () {},
+                                    hotelData: hotelList[index],
+                                    animation: animation,
+                                    animationController: animationController,
+                                  );
+                                },
+                              ),
                             ),
                           ),
-                        ];
-                      },
-                      body: Container(
-                        color: HotelAppTheme.buildLightTheme()
-                            .colorScheme
-                            .background,
-                        child: ListView.builder(
-                          itemCount: hotelList.length,
-                          padding: const EdgeInsets.only(top: 8),
-                          scrollDirection: Axis.vertical,
-                          itemBuilder: (BuildContext context, int index) {
-                            final int count =
-                                hotelList.length > 10 ? 10 : hotelList.length;
-                            final Animation<double> animation =
-                                Tween<double>(begin: 0.0, end: 1.0).animate(
-                                    CurvedAnimation(
-                                        parent: animationController,
-                                        curve: Interval(
-                                            (1 / count) * index, 1.0,
-                                            curve: Curves.fastOutSlowIn)));
-                            animationController.forward();
-                            return HotelListView(
-                              callback: () {},
-                              hotelData: hotelList[index],
-                              animation: animation,
-                              animationController: animationController,
-                            );
-                          },
-                        ),
-                      ),
+                        )
+                      ],
                     ),
-                  )
+                  ),
                 ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -141,38 +148,27 @@ class _HotelHomeScreenState extends State<HotelHomeScreen>
         children: <Widget>[
           SizedBox(
             height: MediaQuery.of(context).size.height - 156 - 50,
-            child: FutureBuilder<bool>(
-              future: getData(),
-              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                if (!snapshot.hasData) {
-                  return const SizedBox();
-                } else {
-                  return ListView.builder(
-                    itemCount: hotelList.length,
-                    scrollDirection: Axis.vertical,
-                    itemBuilder: (BuildContext context, int index) {
-                      final int count =
-                          hotelList.length > 10 ? 10 : hotelList.length;
-                      final Animation<double> animation =
-                          Tween<double>(begin: 0.0, end: 1.0).animate(
-                              CurvedAnimation(
-                                  parent: animationController,
-                                  curve: Interval((1 / count) * index, 1.0,
-                                      curve: Curves.fastOutSlowIn)));
-                      animationController.forward();
+            child: ListView.builder(
+              itemCount: hotelList.length,
+              scrollDirection: Axis.vertical,
+              itemBuilder: (BuildContext context, int index) {
+                final int count = hotelList.length > 10 ? 10 : hotelList.length;
+                final Animation<double> animation =
+                    Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+                        parent: animationController,
+                        curve: Interval((1 / count) * index, 1.0,
+                            curve: Curves.fastOutSlowIn)));
+                animationController.forward();
 
-                      return HotelListView(
-                        callback: () {},
-                        hotelData: hotelList[index],
-                        animation: animation,
-                        animationController: animationController,
-                      );
-                    },
-                  );
-                }
+                return HotelListView(
+                  callback: () {},
+                  hotelData: hotelList[index],
+                  animation: animation,
+                  animationController: animationController,
+                );
               },
             ),
-          )
+          ),
         ],
       ),
     );
@@ -204,7 +200,10 @@ class _HotelHomeScreenState extends State<HotelHomeScreen>
     );
   }
 
-  Widget getTimeDateUI() {
+  Widget getTimeDateUI({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(left: 18, bottom: 16),
       child: Row(
@@ -227,7 +226,11 @@ class _HotelHomeScreenState extends State<HotelHomeScreen>
                       // setState(() {
                       //   isDatePopupOpen = true;
                       // });
-                      showDemoDialog(context: context);
+                      showDemoDialog(
+                        context: context,
+                        endDate: endDate,
+                        startDate: startDate,
+                      );
                     },
                     child: Padding(
                       padding: const EdgeInsets.only(
@@ -496,7 +499,11 @@ class _HotelHomeScreenState extends State<HotelHomeScreen>
     );
   }
 
-  void showDemoDialog({required BuildContext context}) {
+  void showDemoDialog({
+    required BuildContext context,
+    required DateTime startDate,
+    required DateTime endDate,
+  }) {
     showDialog<dynamic>(
       context: context,
       builder: (BuildContext context) => CalendarPopupView(
@@ -506,10 +513,15 @@ class _HotelHomeScreenState extends State<HotelHomeScreen>
         initialEndDate: endDate,
         initialStartDate: startDate,
         onApplyClick: (DateTime startData, DateTime endData) {
-          setState(() {
-            startDate = startData;
-            endDate = endData;
-          });
+          // setState(() {
+          //   startDate = startData;
+          //   endDate = endData;
+          // });
+
+          BlocProvider.of<HotelsBloc>(context).add(ChangeTotalDate(
+            startDate: startData,
+            endDate: endData,
+          ));
         },
         onCancelClick: () {},
       ),
